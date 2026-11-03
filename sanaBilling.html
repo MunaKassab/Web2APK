@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xerox Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f5f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 420px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.service-title {
+    margin-top: 22px;
+    margin-bottom: 8px;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.service-row {
+    display: grid;
+    grid-template-columns: 1fr 112px;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.service-row input {
+    margin-top: 0;
+}
+
+.service-select {
+    width: 100%;
+    padding: 10px 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.extra-service-head {
+    display: grid;
+    grid-template-columns: 1fr 72px 82px 38px;
+    gap: 6px;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+}
+
+.extra-service-row {
+    display: grid;
+    grid-template-columns: 1fr 72px 82px 38px;
+    gap: 6px;
+    align-items: center;
+    margin-top: 7px;
+}
+
+.extra-service-row input {
+    margin-top: 0;
+    padding: 9px 6px;
+    font-size: 14px;
+}
+
+.remove-service {
+    width: 38px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    background: #dc3545;
+    color: white;
+    font-size: 18px;
+}
+
+.add-service-btn {
+    background: #17a2b8;
+    color: white;
+    margin-top: 10px;
+}
+
+
+/* Payment / UPI */
+.payment-settings {
+    margin-top: 22px;
+    padding: 14px;
+    border: 1px solid #d9e2ec;
+    border-radius: 10px;
+    background: #f8fbff;
+}
+.payment-title {
+    font-size: 19px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.upi-setting-row {
+    display: grid;
+    grid-template-columns: 1fr 82px 82px;
+    gap: 6px;
+    align-items: center;
+}
+.upi-setting-row input {
+    margin-top: 0;
+}
+.payment-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+.payment-btn-row button {
+    margin-top: 0;
+}
+.cash-btn { background:#198754; color:#fff; }
+.upi-btn { background:#6f42c1; color:#fff; }
+.payment-status {
+    margin-top: 10px;
+    padding: 9px;
+    border-radius: 7px;
+    background: #e9f7ef;
+    color: #146c43;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+}
+.payment-status.empty {
+    background: #fff3cd;
+    color: #856404;
+}
+.qr-modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:99998;
+    background:rgba(0,0,0,.58);
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    box-sizing:border-box;
+}
+.qr-card {
+    width:min(390px,100%);
+    background:#fff;
+    border-radius:14px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 12px 40px rgba(0,0,0,.28);
+}
+.qr-card h3 { margin:0 0 8px; }
+.qr-amount {
+    font-size:25px;
+    font-weight:900;
+    margin:8px 0 12px;
+}
+#upiQr {
+    display:flex;
+    justify-content:center;
+    margin:10px 0;
+}
+#upiQr img, #upiQr canvas {
+    max-width:250px;
+    height:auto;
+}
+.qr-timer {
+    font-weight:bold;
+    margin:10px 0;
+}
+.qr-note {
+    font-size:13px;
+    color:#555;
+    line-height:1.4;
+}
+.qr-actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:14px;
+}
+.qr-actions button { margin-top:0; }
+.back-btn { background:#6c757d; color:#fff; }
+.done-btn { background:#198754; color:#fff; }
+.payment-method-row td {
+    font-weight:bold;
+    background:#f8f9fa;
+}
+
+/* Attractive button animations */
+button {
+    position: relative;
+    overflow: hidden;
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+button:hover { transform: translateY(-2px); box-shadow: 0 7px 16px rgba(0,0,0,.18); filter: brightness(1.05); }
+button:active { transform: scale(.96); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+button.button-pop { animation: buttonPop .38s ease; }
+.calc-btn.calc-ring { animation: simpleCalcGlow .55s ease-out; }
+@keyframes simpleCalcGlow {0%{box-shadow:0 0 0 0 rgba(0,123,255,.65)}50%{box-shadow:0 0 0 5px rgba(0,123,255,.18),0 0 14px 3px rgba(0,123,255,.45)}100%{box-shadow:0 0 0 0 rgba(0,123,255,0)}}
+.total-box.total-light { animation: totalGlow 1.2s ease-in-out infinite; }
+@keyframes totalGlow {0%,100%{box-shadow:0 0 4px rgba(0,123,255,.18);border:1px solid rgba(0,123,255,.18)}50%{box-shadow:0 0 14px rgba(0,123,255,.55);border:1px solid rgba(0,123,255,.55)}}
+.download-btn.pdf-glow { animation: simplePdfGlow .55s ease; }
+@keyframes simplePdfGlow {0%{box-shadow:0 0 0 rgba(40,167,69,0)}50%{box-shadow:0 0 14px rgba(40,167,69,.7)}100%{box-shadow:0 0 0 rgba(40,167,69,0)}}
+@keyframes ripple { to{transform:scale(22);opacity:0} }
+@keyframes buttonPop { 0%{transform:scale(1)} 45%{transform:scale(1.08)} 100%{transform:scale(1)} }
+
+/* Celebration overlay */
+.celebration-overlay {
+    position: fixed; inset: 0; z-index: 99999; pointer-events: none;
+    overflow: hidden;
+}
+.congrats-message {
+    position: absolute; left: 50%; top: 43%; transform: translate(-50%,-50%) scale(.2);
+    font-size: clamp(34px, 11vw, 76px); font-weight: 900; color: #fff;
+    text-align: center; white-space: nowrap;
+    text-shadow: 0 0 8px #fff, 0 0 18px #ff4081, 0 0 34px #7c4dff, 0 5px 15px rgba(0,0,0,.45);
+    animation: congratsIn 1.15s cubic-bezier(.17,.89,.32,1.28) forwards;
+}
+.congrats-sub {
+    position:absolute; left:50%; top:53%; transform:translate(-50%,-50%) scale(.5);
+    color:#fff; font-size:clamp(15px,4vw,25px); font-weight:800; white-space:nowrap;
+    text-shadow:0 2px 8px rgba(0,0,0,.5); animation: subIn .8s .25s ease forwards; opacity:0;
+}
+@keyframes congratsIn { 0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-8deg)} 55%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(3deg)} 100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)} }
+@keyframes subIn { to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+.firework { position:absolute; width:8px; height:8px; border-radius:50%; background:#fff; animation: fireworkBurst 1.45s cubic-bezier(.15,.7,.2,1) forwards; box-shadow:0 0 10px #fff; }
+@keyframes fireworkBurst { 0%{transform:translate(0,0) scale(.2);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0} }
+.confetti { position:absolute; width:9px; height:16px; top:-25px; animation: confettiFall 2.8s cubic-bezier(.2,.65,.35,1) forwards; }
+@keyframes confettiFall { to { transform:translate3d(var(--x),110vh,0) rotate(720deg); opacity:.15; } }
+.spark { position:absolute; width:5px;height:5px;border-radius:50%; background:#fff; animation:sparkFly 1.1s ease-out forwards; }
+@keyframes sparkFly { to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0} }
+.success-flash { animation: successFlash .65s ease; }
+@keyframes successFlash { 0%,100%{box-shadow:0 0 0 rgba(0,123,255,0)} 35%{box-shadow:0 0 30px rgba(0,123,255,.7)} }
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.calc-btn {
+    background: #007bff;
+    color: white;
+}
+
+.reset-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.download-btn {
+    background: #28a745;
+    color: white;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.total-box {
+    margin-top: 15px;
+    padding: 12px;
+    background: #e9f5ff;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+
+/* Moving Store Information Ticker */
+.store-ticker {
+    width: 100%;
+    overflow: hidden;
+    background: #007bff;
+    color: #fff;
+    border-radius: 8px;
+    margin: 10px auto 0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    white-space: nowrap;
+}
+
+.store-ticker-track {
+    display: inline-block;
+    padding: 9px 0;
+    padding-left: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    animation: storeTickerMove 18s linear infinite;
+}
+
+.store-ticker-track span {
+    margin-right: 70px;
+}
+
+@keyframes storeTickerMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+
+
+/* Customer PDF 3-step layout */
+.customer-pdf-step{background:#f8fafc;border:1px solid #dbe4ec;border-radius:12px;padding:13px;margin-top:11px;text-align:left}
+.customer-pdf-step-title{font-weight:800;color:#174a7e;font-size:15px;margin-bottom:5px}
+.customer-pdf-owner-row{display:block}
+.customer-owner-number,.customer-customer-number{display:block;width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccd6e0;border-radius:10px;background:#fff;font-size:15px;margin-top:9px}
+.customer-pdf-owner-buttons{display:flex;gap:9px;margin-top:9px}
+.customer-pdf-owner-buttons button{flex:1;border:0;padding:11px 12px;border-radius:10px;cursor:pointer;font-weight:700}
+.customer-owner-set{background:#128C7E;color:#fff}.customer-owner-remove{background:#d32f2f;color:#fff}
+.customer-pdf-send{margin-top:13px}
+.customer-pdf-final-note{margin-top:9px}
+
+</style>
+
+
+
+
+<style>
+.customer-records-section{margin-top:18px;padding:16px;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#eef7ff);border:1px solid #cfe3ff}
+.customer-records-section h3{margin:0 0 10px;color:#174a7e}
+.customer-records-list{display:grid;gap:8px;margin-top:12px}
+.customer-record{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;padding:11px 12px;border-radius:10px;border:1px solid #e1e8f0}
+.customer-record-info{font-weight:700;line-height:1.45}
+.customer-record-info small{display:block;color:#64748b;font-weight:500;margin-top:4px}
+
+.customer-pdf-section{margin-top:18px;padding:16px;border-radius:16px;background:#fff;border:1px solid #d7e1ea;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.customer-pdf-section h3{margin:0 0 8px;color:#174a7e}
+.customer-pdf-note{font-size:13px;color:#64748b;line-height:1.45;margin-bottom:10px}
+.customer-pdf-owner-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.customer-owner-number{flex:1;min-width:0;box-sizing:border-box;padding:11px;border:1px solid #ccd6e0;border-radius:10px;background:#fff;font-size:15px}
+.customer-owner-set,.customer-owner-remove{border:0;padding:11px 13px;border-radius:10px;cursor:pointer;font-weight:700;white-space:nowrap}
+.customer-owner-set{background:#128C7E;color:#fff}.customer-owner-remove{background:#d32f2f;color:#fff}
+.customer-pdf-latest{font-size:14px;color:#334155;background:#f8fafc;border-radius:9px;padding:10px;margin-top:10px}
+.customer-pdf-file{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccd6e0;border-radius:10px;background:#fff;margin-top:10px;font-size:15px}
+.customer-pdf-selected{font-size:13px;color:#475569;background:#f8fafc;border-radius:9px;padding:9px;margin-top:8px}
+.customer-pdf-send{width:100%;margin-top:10px;border:0;border-radius:10px;padding:12px;background:#128C7E;color:#fff;font-weight:700;cursor:pointer}
+
+.customer-record-actions{display:flex;flex-direction:column;gap:6px;min-width:118px}
+.customer-record-actions button{border:0;padding:7px 9px;border-radius:7px;cursor:pointer;font-weight:700;font-size:12px;margin:0}
+.customer-delete{background:#d32f2f;color:#fff}
+.customer-verify{background:#128C7E;color:#fff}
+.customer-forgot-wrap{text-align:center;margin-top:12px}
+.customer-forgot{border:0;background:#eef2f7;color:#174a7e;padding:7px 13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px}
+.password-modal-note{font-size:13px;color:#64748b;line-height:1.4}
+.customer-empty{color:#6b7280;font-size:14px}
+.customer-modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;z-index:10002;padding:18px}
+.customer-modal-card{width:min(430px,100%);background:#fff;border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.customer-modal-card h2{margin-top:0;color:#174a7e}
+.customer-modal-card input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd6e0;border-radius:10px;font-size:17px;margin:10px 0}
+.customer-modal-actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.customer-modal-actions button{border:0;padding:11px 18px;border-radius:10px;font-weight:700;cursor:pointer}
+.customer-next{background:#1976d2;color:#fff}.customer-skip{background:#e9eef3;color:#263238}
+</style>
+
+</head>
+
+<body>
+
+<!-- Moving store information ticker -->
+<div class="store-ticker" aria-label="Store information">
+    <div class="store-ticker-track">
+        <span>🏪 SANA STORE NALATWAD</span>
+        <span>📞 Contact:  | 9008398919</span>
+        <span>📍 ADDRESS: Bharapete Gali. Near Water Tank. Nalatwad 586124.</span>
+        <span>🏪 SANA STORE NALATWAD</span>
+        <span>📞 Contact:  | 9008398919</span>
+        <span>📍 ADDRESS: Bharapete Gali. Near Water Tank. Nalatwad 586124.</span>
+    </div>
+</div>
+
+<div class="container">
+    <h2>📄 Xerox Calculator</h2>
+
+    <div class="service-title">🎨 COLOUR XEROX</div>
+
+    <label>2 Side Colour (₹30)</label>
+    <input type="number" id="colour2" placeholder="Pages">
+
+    <label>1 Side Colour (₹15)</label>
+    <input type="number" id="colour1" placeholder="Pages">
+
+    <div class="service-title">⚫ BLACK XEROX</div>
+
+    <label>2 Side Black (₹5)</label>
+    <input type="number" id="black2" placeholder="Pages">
+
+    <label>1 Side Black (₹3)</label>
+    <input type="number" id="black1" placeholder="Pages">
+
+    <div class="service-title">📌 SERVICE OPTIONS</div>
+
+    <label>Lamination</label>
+    <div class="service-row">
+        <input type="number" id="laminationQty" placeholder="Quantity">
+        <select id="laminationType" class="service-select">
+            <option value="50">A4 - ₹50</option>
+            <option value="40">Aadhaar Long - ₹40</option>
+            <option value="30">PVC Size - ₹30</option>
+        </select>
+    </div>
+
+    <label>Photos</label>
+    <div class="service-row">
+        <input type="number" id="photoQty" placeholder="Quantity">
+        <select id="photoType" class="service-select">
+            <option value="30">4 Photos - ₹30</option>
+            <option value="60">8 Photo Copies - ₹60</option>
+        </select>
+    </div>
+
+    <label>Udyam Certificate (₹350)</label>
+    <div class="service-row">
+        <input type="number" id="udyamQty" placeholder="Quantity">
+        <select id="udyamType" class="service-select">
+            <option value="350">Udyam - ₹350</option>
+        </select>
+    </div>
+
+    <label>4 Pages Colour Udyam (₹40)</label>
+    <div class="service-row">
+        <input type="number" id="colour4Qty" placeholder="Quantity">
+        <select id="colour4Type" class="service-select">
+            <option value="40">4 Pages Colour Udyam - ₹40</option>
+        </select>
+    </div>
+
+    <div class="service-title">🧾 OTHER SERVICES</div>
+    <div class="extra-service-head">
+        <div>Title</div>
+        <div>Quantity</div>
+        <div>Price</div>
+        <div></div>
+    </div>
+    <div id="extraServices"></div>
+    <button type="button" class="add-service-btn" onclick="addExtraService()">+ Add Service</button>
+
+
+    <div class="payment-settings">
+        <div class="payment-title">💳 UPI SETTING</div>
+        <div class="upi-setting-row">
+            <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@upi)">
+            <button type="button" class="calc-btn" onclick="setUpi()">Set</button>
+            <button type="button" class="reset-btn" onclick="removeUpi()">Remove</button>
+        </div>
+        <div id="upiStatus" class="payment-status empty">UPI ID is not set</div>
+
+        <div class="payment-title" style="margin-top:16px;">💰 PAYMENT METHOD</div>
+        <div class="payment-btn-row">
+            <button type="button" class="cash-btn" onclick="selectCash()">CASH</button>
+            <button type="button" class="upi-btn" onclick="selectUpi()">ONLINE / UPI</button>
+        </div>
+        <div id="paymentStatus" class="payment-status empty">Payment method not selected</div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateBill()">Calculate 💰</button>
+    <button class="reset-btn" onclick="resetBill()">Reset 🔄</button>
+    <button class="download-btn" onclick="downloadPDF()">Download PDF 📄</button>
+
+    <div id="reviewSection">
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Pages</th>
+                <th>Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="rowColour2" style="display:none;">
+                <td>2 Side Colour</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowBlack2" style="display:none;">
+                <td>2 Side Black</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowBlack1" style="display:none;">
+                <td>1 Side Black</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowColour1" style="display:none;">
+                <td>1 Side Colour</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowLamination" style="display:none;">
+                <td class="service-name">Lamination</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowPhotos" style="display:none;">
+                <td class="service-name">Photos</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowUdyam" style="display:none;">
+                <td class="service-name">Udyam Certificate</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+            <tr id="rowColour4" style="display:none;">
+                <td class="service-name">4 Pages Colour Udyam</td>
+                <td class="pages"></td>
+                <td class="amount"></td>
+            </tr>
+        </tbody>
+        <tbody id="extraReviewRows"></tbody>
+    </table>
+
+    <div class="total-box">
+        Total Amount: <span id="totalAmount">₹ 0</span>
+    </div>
+    <table style="margin-top:10px;">
+        <tbody>
+            <tr id="paymentMethodRow" class="payment-method-row" style="display:none;">
+                <td colspan="3">Payment Method: <span id="paymentMethodText"></span></td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+
+</div>
+
+<div id="qrModal" class="qr-modal" aria-hidden="true">
+    <div class="qr-card">
+        <h3>📲 Scan & Pay</h3>
+        <div class="qr-amount">₹ <span id="qrAmount">0</span></div>
+        <div id="upiQr"></div>
+        <div class="qr-timer">QR valid for: <span id="qrTimer">60:00</span></div>
+        <div class="qr-note">Scan this QR with any supported UPI app. The bill amount is already included, so the customer does not need to enter the amount again.</div>
+        <div class="qr-actions">
+            <button type="button" class="back-btn" onclick="closeQr()">Back</button>
+            <button type="button" class="done-btn" onclick="upiPaymentDone()">Done</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+function animateButton(btn) {
+    if (!btn) return;
+    btn.classList.remove("button-pop");
+    void btn.offsetWidth;
+    btn.classList.add("button-pop");
+}
+
+function createCelebration() {
+    const old = document.querySelector(".celebration-overlay");
+    if (old) old.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "celebration-overlay";
+
+    const msg = document.createElement("div");
+    msg.className = "congrats-message";
+    msg.textContent = "🎉 CONGRATULATIONS! 🎉";
+    overlay.appendChild(msg);
+
+    const sub = document.createElement("div");
+    sub.className = "congrats-sub";
+    sub.textContent = "Payment marked as successful ✨";
+    overlay.appendChild(sub);
+
+    const colors = ["#ff1744","#ffea00","#00e5ff","#76ff03","#ff4081","#7c4dff","#ffffff"];
+
+    // Bright center fireworks behind the message.
+    for (let burst = 0; burst < 5; burst++) {
+        const x = 18 + Math.random() * 64;
+        const y = 18 + Math.random() * 48;
+        for (let j = 0; j < 28; j++) {
+            const f = document.createElement("span");
+            f.className = "firework";
+            f.style.left = x + "vw";
+            f.style.top = y + "vh";
+            const a = Math.random() * Math.PI * 2;
+            const d = 45 + Math.random() * 110;
+            f.style.setProperty("--dx", Math.cos(a) * d + "px");
+            f.style.setProperty("--dy", Math.sin(a) * d + "px");
+            f.style.background = colors[Math.floor(Math.random() * colors.length)];
+            overlay.appendChild(f);
+        }
+    }
+
+    // Falling confetti from the top.
+    for (let i = 0; i < 150; i++) {
+        const c = document.createElement("span");
+        c.className = "confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.setProperty("--x", (Math.random() * 260 - 130) + "px");
+        c.style.animationDelay = (Math.random() * .9) + "s";
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+        overlay.appendChild(c);
+    }
+
+    // Extra sparkles around the center.
+    for (let i = 0; i < 45; i++) {
+        const sp = document.createElement("span");
+        sp.className = "spark";
+        sp.style.left = (50 + (Math.random() * 42 - 21)) + "vw";
+        sp.style.top = (45 + (Math.random() * 32 - 16)) + "vh";
+        sp.style.setProperty("--dx", (Math.random() * 160 - 80) + "px");
+        sp.style.setProperty("--dy", (Math.random() * 160 - 80) + "px");
+        overlay.appendChild(sp);
+    }
+
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 4500);
+}
+
+function buttonRipple(e) {
+    const btn=e.currentTarget; animateButton(btn);
+    const r=document.createElement("span");
+    r.style.cssText="position:absolute;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:ripple .55s ease-out;pointer-events:none;left:"+(e.offsetX-6)+"px;top:"+(e.offsetY-6)+"px;";
+    btn.appendChild(r); setTimeout(()=>r.remove(),600);
+}
+
+document.addEventListener("click", function(e){
+    const btn=e.target.closest("button");
+    if(btn) buttonRipple({currentTarget:btn,offsetX:e.offsetX,offsetY:e.offsetY});
+});
+
+function addExtraService(title = "", qty = "", price = "") {
+    const wrap = document.getElementById("extraServices");
+    const row = document.createElement("div");
+    row.className = "extra-service-row";
+    row.innerHTML = `
+        <input type="text" class="extra-title" placeholder="Service title" value="${escapeHtml(title)}">
+        <input type="number" class="extra-qty" min="0" placeholder="Qty" value="${qty}">
+        <input type="number" class="extra-price" min="0" step="0.01" placeholder="₹" value="${price}">
+        <button type="button" class="remove-service" onclick="this.parentElement.remove(); calculateBill()">×</button>
+    `;
+    wrap.appendChild(row);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+let paymentMethod = "";
+let storedUpiId = localStorage.getItem("sanaStoreUpiId") || "";
+let qrTimerInterval = null;
+let qrExpiresAt = 0;
+
+function updateUpiStatus() {
+    const status = document.getElementById("upiStatus");
+    const input = document.getElementById("upiId");
+    const row = input ? input.closest(".upi-setting-row") : null;
+    const setButton = row ? row.querySelector(".calc-btn") : null;
+    const removeButton = row ? row.querySelector(".reset-btn") : null;
+
+    if (storedUpiId) {
+        // Once set, UPI ID is locked. It can only become editable after Remove + password.
+        input.value = storedUpiId;
+        input.readOnly = true;
+        input.setAttribute("aria-readonly", "true");
+        input.style.display = "none";
+        if (setButton) setButton.style.display = "none";
+        if (removeButton) removeButton.style.display = "inline-block";
+        status.className = "payment-status";
+        status.innerText = "UPI ID set: " + storedUpiId + " (Locked — Remove karke hi change kar sakte hain)";
+    } else {
+        input.value = "";
+        input.readOnly = false;
+        input.removeAttribute("aria-readonly");
+        input.style.display = "";
+        if (setButton) setButton.style.display = "inline-block";
+        if (removeButton) removeButton.style.display = "inline-block";
+        status.className = "payment-status empty";
+        status.innerText = "UPI ID is not set";
+    }
+}
+
+function setUpi() {
+    if (storedUpiId) {
+        alert("UPI ID already set hai. Change karne ke liye pehle Remove button dabakar password enter karein.");
+        return;
+    }
+    const value = document.getElementById("upiId").value.trim();
+    if (!value || !value.includes("@")) {
+        alert("Please enter a valid UPI ID.");
+        return;
+    }
+    storedUpiId = value;
+    localStorage.setItem("sanaStoreUpiId", storedUpiId);
+    updateUpiStatus();
+    animateButton(document.querySelector(".upi-setting-row .calc-btn"));
+}
+
+function removeUpi() {
+    const password = prompt("UPI ID remove karne ke liye password enter karein:");
+    if (password === null) return;
+    if (password !== "Mujeeb@2005") {
+        alert("Incorrect password. UPI ID remove nahi ki gayi.");
+        return;
+    }
+
+    storedUpiId = "";
+    localStorage.removeItem("sanaStoreUpiId");
+    updateUpiStatus();
+    alert("UPI ID successfully remove ho gayi.");
+}
+
+function getTotalAmount() {
+    const text = document.getElementById("totalAmount").innerText.replace(/[^\d.]/g, "");
+    return Number(text) || 0;
+}
+
+function updatePaymentDisplay() {
+    const row = document.getElementById("paymentMethodRow");
+    const text = document.getElementById("paymentMethodText");
+    const status = document.getElementById("paymentStatus");
+    if (!paymentMethod) {
+        row.style.display = "none";
+        status.className = "payment-status empty";
+        status.innerText = "Payment method not selected";
+        return;
+    }
+    row.style.display = "table-row";
+    text.innerText = paymentMethod === "cash" ? "CASH" : "ONLINE / UPI";
+    status.className = "payment-status";
+    status.innerText = paymentMethod === "cash"
+        ? "Payment selected: CASH"
+        : "Payment selected: ONLINE / UPI";
+}
+
+
+function playCashCollectedSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        // Two bright notes + a soft confirmation chime.
+        const notes = [
+            { freq: 659.25, start: 0.00, duration: 0.16 },
+            { freq: 783.99, start: 0.11, duration: 0.18 },
+            { freq: 1046.50, start: 0.23, duration: 0.28 }
+        ];
+
+        notes.forEach((note, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = i === 2 ? "sine" : "triangle";
+            osc.frequency.setValueAtTime(note.freq, now + note.start);
+
+            gain.gain.setValueAtTime(0.0001, now + note.start);
+            gain.gain.exponentialRampToValueAtTime(0.22, now + note.start + 0.025);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + note.start + note.duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + note.start);
+            osc.stop(now + note.start + note.duration + 0.03);
+        });
+
+        setTimeout(() => ctx.close(), 1000);
+    } catch (e) {}
+}
+
+function selectCash() {
+    const total = getTotalAmount();
+    if (total <= 0) {
+        alert("Please calculate the bill first.");
+        return;
+    }
+    paymentMethod = "cash";
+    updatePaymentDisplay();
+    playCashCollectedSound();
+}
+
+function selectUpi() {
+    const total = getTotalAmount();
+    if (total <= 0) {
+        alert("Please calculate the bill first.");
+        return;
+    }
+    if (!storedUpiId) {
+        alert("Please set your UPI ID first.");
+        return;
+    }
+
+    paymentMethod = "upi";
+    updatePaymentDisplay();
+    openUpiQr(total);
+}
+
+function openUpiQr(total) {
+    const qrBox = document.getElementById("upiQr");
+    qrBox.innerHTML = "";
+
+    // UPI payment URI with the already-calculated bill amount.
+    const upiUrl =
+        "upi://pay?pa=" + encodeURIComponent(storedUpiId) +
+        "&pn=" + encodeURIComponent("SANA STORE NALATWAD") +
+        "&am=" + encodeURIComponent(total.toFixed(2)) +
+        "&cu=INR";
+
+    new QRCode(qrBox, {
+        text: upiUrl,
+        width: 250,
+        height: 250,
+        correctLevel: QRCode.CorrectLevel.M
+    });
+
+    document.getElementById("qrAmount").innerText = total.toFixed(2);
+    document.getElementById("qrModal").style.display = "flex";
+    document.getElementById("qrModal").setAttribute("aria-hidden", "false");
+
+    clearInterval(qrTimerInterval);
+    qrExpiresAt = Date.now() + (60 * 60 * 1000);
+    updateQrTimer();
+    qrTimerInterval = setInterval(updateQrTimer, 1000);
+}
+
+function updateQrTimer() {
+    const remaining = Math.max(0, qrExpiresAt - Date.now());
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    document.getElementById("qrTimer").innerText =
+        String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+
+    if (remaining <= 0) {
+        clearInterval(qrTimerInterval);
+        document.getElementById("upiQr").innerHTML =
+            '<div style="padding:30px 10px;font-weight:bold;color:#b02a37;">QR expired. Please generate a new QR.</div>';
+    }
+}
+
+function closeQr() {
+    clearInterval(qrTimerInterval);
+    document.getElementById("qrModal").style.display = "none";
+    document.getElementById("qrModal").setAttribute("aria-hidden", "true");
+}
+
+function upiPaymentDone() {
+    if (Date.now() >= qrExpiresAt) {
+        alert("This QR has expired. Please generate a new QR.");
+        return;
+    }
+    paymentMethod = "upi";
+    updatePaymentDisplay();
+    closeQr();
+    
+}
+
+
+function calculateBill() {
+    const rates = {
+        colour2: 30,
+        black2: 5,
+        black1: 3,
+        colour1: 15
+    };
+
+    let total = 0;
+
+    function updateRow(rowId, inputId, rate, name) {
+        const row = document.getElementById(rowId);
+        const pages = parseInt(document.getElementById(inputId).value) || 0;
+        const pagesCell = row.querySelector(".pages");
+        const amountCell = row.querySelector(".amount");
+        const amount = pages * rate;
+
+        if (pages > 0) {
+            row.style.display = "table-row";
+            if (name) row.querySelector(".service-name").innerText = name;
+            pagesCell.innerText = pages;
+            amountCell.innerText = "₹" + amount;
+            total += amount;
+        } else {
+            row.style.display = "none";
+        }
+    }
+
+    updateRow("rowColour2", "colour2", rates.colour2);
+    updateRow("rowBlack2", "black2", rates.black2);
+    updateRow("rowBlack1", "black1", rates.black1);
+    updateRow("rowColour1", "colour1", rates.colour1);
+
+    const laminationRate = Number(document.getElementById("laminationType").value);
+    const laminationName = document.getElementById("laminationType").selectedOptions[0].text;
+    updateRow("rowLamination", "laminationQty", laminationRate, "Lamination - " + laminationName.replace(/ - ₹\d+/, ""));
+
+    const photoRate = Number(document.getElementById("photoType").value);
+    const photoName = document.getElementById("photoType").selectedOptions[0].text;
+    updateRow("rowPhotos", "photoQty", photoRate, "Photos - " + photoName.replace(/ - ₹\d+/, ""));
+
+    const udyamRate = Number(document.getElementById("udyamType").value);
+    updateRow("rowUdyam", "udyamQty", udyamRate, "Udyam Certificate");
+
+    const colour4Rate = Number(document.getElementById("colour4Type").value);
+    updateRow("rowColour4", "colour4Qty", colour4Rate, "4 Pages Colour Udyam");
+
+    const extraReviewRows = document.getElementById("extraReviewRows");
+    extraReviewRows.innerHTML = "";
+
+    document.querySelectorAll("#extraServices .extra-service-row").forEach(row => {
+        const title = row.querySelector(".extra-title").value.trim();
+        const qty = Number(row.querySelector(".extra-qty").value) || 0;
+        const price = Number(row.querySelector(".extra-price").value) || 0;
+
+        if (title && qty > 0) {
+            const amount = qty * price;
+            total += amount;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${escapeHtml(title)}</td>
+                <td>${qty}</td>
+                <td>₹${amount}</td>
+            `;
+            extraReviewRows.appendChild(tr);
+        }
+    });
+
+    document.getElementById("totalAmount").innerText = "₹ " + total;
+    const calcBtn=document.querySelector(".calc-btn"), totalBox=document.querySelector(".total-box");
+    calcBtn.classList.remove("calc-ring");
+    void calcBtn.offsetWidth;
+    calcBtn.classList.add("calc-ring");
+    totalBox.classList.add("total-light");
+    document.getElementById("reviewSection").classList.remove("success-flash");
+    void document.getElementById("reviewSection").offsetWidth;
+    document.getElementById("reviewSection").classList.add("success-flash");
+}
+
+function resetBill() {
+    [
+        "colour2", "black2", "black1", "colour1",
+        "laminationQty", "photoQty", "udyamQty", "colour4Qty"
+    ].forEach(id => document.getElementById(id).value = "");
+
+    [
+        "rowColour2", "rowBlack2", "rowBlack1", "rowColour1",
+        "rowLamination", "rowPhotos", "rowUdyam", "rowColour4"
+    ].forEach(id => document.getElementById(id).style.display = "none");
+
+    document.getElementById("laminationType").selectedIndex = 0;
+    document.getElementById("photoType").selectedIndex = 0;
+    document.getElementById("udyamType").selectedIndex = 0;
+    document.getElementById("colour4Type").selectedIndex = 0;
+
+    document.getElementById("extraServices").innerHTML = "";
+    document.getElementById("extraReviewRows").innerHTML = "";
+    addExtraService();
+
+    document.getElementById("totalAmount").innerText = "₹ 0";
+    document.querySelector(".total-box").classList.remove("total-light");
+
+    paymentMethod = "";
+    updatePaymentDisplay();
+    closeQr();
+}
+
+addExtraService();
+// UPI ID is intentionally not assigned a default value.
+// Once set, it remains locked until Remove + password.
+updateUpiStatus();
+
+function playCelebrationSound(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=new A(),n=c.currentTime,m=c.createGain();m.gain.setValueAtTime(.0001,n);m.gain.exponentialRampToValueAtTime(.16,n+.03);m.gain.exponentialRampToValueAtTime(.0001,n+2.2);m.connect(c.destination);[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type=i%2?'triangle':'sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,n+i*.12);g.gain.exponentialRampToValueAtTime(.7,n+i*.12+.03);g.gain.exponentialRampToValueAtTime(.0001,n+i*.12+.55);o.connect(g);g.connect(m);o.start(n+i*.12);o.stop(n+i*.12+.6)});setTimeout(()=>c.close(),2600)}catch(e){}}
+
+async function downloadPDF() {
+    if (!paymentMethod) {
+        alert("Please select CASH or ONLINE / UPI before downloading the PDF.");
+        return;
+    }
+    const downloadBtn=document.querySelector(".download-btn");
+    downloadBtn.classList.remove("pdf-glow");
+    void downloadBtn.offsetWidth;
+    downloadBtn.classList.add("pdf-glow");
+    document.querySelector(".total-box").classList.remove("total-light");
+    const review = document.getElementById("reviewSection");
+
+    // Create a temporary A4-friendly bill layout for the PDF.
+    const pdfContent = document.createElement("div");
+    pdfContent.style.position = "fixed";
+    pdfContent.style.left = "-10000px";
+    pdfContent.style.top = "0";
+    pdfContent.style.width = "794px";
+    pdfContent.style.background = "#ffffff";
+    pdfContent.style.padding = "35px";
+    pdfContent.style.boxSizing = "border-box";
+    pdfContent.style.fontFamily = "Arial, sans-serif";
+    pdfContent.style.color = "#111";
+
+    pdfContent.innerHTML = `
+        <div style="border:2px solid #222; border-radius:10px; padding:20px; text-align:center; margin-bottom:22px;">
+            <div style="font-size:32px; font-weight:bold; margin-bottom:8px;">SANA STORE NALATWAD</div>
+            <div style="font-size:19px; font-weight:bold; margin-bottom:12px;">Contact:  &nbsp; | &nbsp; 9008398919</div>
+            <div style="font-size:17px; line-height:1.6;">
+                Adhaar Card &nbsp; | &nbsp; Voter &nbsp; | &nbsp; Lamination<br>
+                Color / Black Xerox &nbsp; | &nbsp; Udyam Certificate<br>
+                <b>All Services Available</b>
+            </div>
+        </div>
+        <div style="font-size:22px; font-weight:bold; text-align:center; margin-bottom:14px;">XEROX BILL / REVIEW</div>
+        <div id="pdfReview"></div>
+        <div style="border:1.5px solid #222; border-radius:8px; padding:14px; margin-top:22px; font-size:17px; line-height:1.5;">
+            <b>Address Shop:</b> BHARAPET Gali, Near Water Tank,<br>
+            Nalatwad - 586124.
+        </div>
+    `;
+
+    document.body.appendChild(pdfContent);
+
+    // Copy only the Review section into the PDF layout.
+    const clonedReview = review.cloneNode(true);
+    clonedReview.style.width = "100%";
+    clonedReview.style.margin = "0";
+    clonedReview.style.padding = "0";
+    clonedReview.style.background = "#fff";
+    pdfContent.querySelector("#pdfReview").appendChild(clonedReview);
+
+    const canvas = await html2canvas(pdfContent, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+    });
+
+    document.body.removeChild(pdfContent);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const margin = 10;
+    const availableWidth = pageWidth - (margin * 2);
+
+    const imgWidth = availableWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let remainingHeight = imgHeight;
+    let sourceY = 0;
+
+    // Automatically create extra A4 pages if the bill becomes longer.
+    while (remainingHeight > 0) {
+        const pageCanvas = document.createElement("canvas");
+        const pagePixelHeight = Math.min(
+            canvas.height - sourceY,
+            Math.floor((pageHeight - margin * 2) * canvas.width / imgWidth)
+        );
+
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = pagePixelHeight;
+
+        const ctx = pageCanvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(
+            canvas,
+            0, sourceY, canvas.width, pagePixelHeight,
+            0, 0, canvas.width, pagePixelHeight
+        );
+
+        const pageImgHeight = (pagePixelHeight * imgWidth) / canvas.width;
+
+        if (sourceY > 0) {
+            pdf.addPage();
+        }
+
+        pdf.addImage(
+            pageCanvas.toDataURL("image/png"),
+            "PNG",
+            margin,
+            margin,
+            imgWidth,
+            pageImgHeight
+        );
+
+        sourceY += pagePixelHeight;
+        remainingHeight -= pageImgHeight;
+    }
+
+    const pdfBlob = pdf.output("blob");
+    const pdfFile = new File([pdfBlob], "SANA-STORE-NALATWAD-Bill.pdf", { type: "application/pdf" });
+
+    // Download the bill AND automatically place the same generated PDF into
+    // the Customer PDF box, so the user does not need to upload it again.
+    pdf.save("SANA-STORE-NALATWAD-Bill.pdf");
+    setGeneratedCustomerPdf(pdfFile);
+    try {
+        localStorage.setItem("sana_store_last_bill_pdf_ready_v1", "1");
+    } catch(e) {}
+}
+
+function setGeneratedCustomerPdf(file) {
+    const input = document.getElementById("customerPdfFile");
+    if (!input || !file) return;
+    try {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        updateCustomerPdfSelectedInfo();
+    } catch (e) {
+        // Some browsers do not allow programmatic assignment to file inputs.
+        // Keep the generated File in memory so Send can still use it.
+    }
+    window.generatedCustomerBillPdf = file;
+}
+
+
+
+// ===== Customer Name in Bank + PhonePe / UPI records =====
+const CUSTOMER_RECORDS_KEY = 'sana_store_customer_records_v1';
+const CUSTOMER_PASSWORD_KEY = 'sana_store_customer_delete_password_v1';
+const CUSTOMER_REMINDERS_KEY = 'sana_store_customer_reminders_v1';
+const STORE_WHATSAPP_NUMBER = '918722074166';
+const DEFAULT_CUSTOMER_DELETE_PASSWORD = '586124';
+const OTP_DESTINATION = '';
+let  = null;
+let  = 0;
+
+// UPI Done button se automatically capture hone wali payment details.
+let pendingCustomerPaymentAmount = '';
+let pendingCustomerPaymentDoneAt = null;
+
+function getCustomerDeletePassword() {
+  return localStorage.getItem(CUSTOMER_PASSWORD_KEY) || DEFAULT_CUSTOMER_DELETE_PASSWORD;
+}
+
+function getCustomerRecords() {
+  try { return JSON.parse(localStorage.getItem(CUSTOMER_RECORDS_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+
+// Persistent customer-record backup. localStorage is kept for compatibility,
+// while IndexedDB provides a more durable backup on Android/mobile browsers.
+const CUSTOMER_RECORDS_DB_NAME = 'SanaStoreCustomerRecordsDB_v1';
+const CUSTOMER_RECORDS_DB_STORE = 'records';
+let customerRecordsWriteQueue = Promise.resolve();
+
+// Ask the browser for persistent storage so customer records are not treated
+// as disposable site data. The browser may grant this automatically or may
+// keep its own storage policy; the app still uses localStorage + IndexedDB.
+async function requestCustomerRecordsPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      await navigator.storage.persist();
+    }
+  } catch (e) {}
+}
+
+function openCustomerRecordsDB() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) { reject(new Error('IndexedDB unavailable')); return; }
+    const request = indexedDB.open(CUSTOMER_RECORDS_DB_NAME, 1);
+    request.onupgradeneeded = function() {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(CUSTOMER_RECORDS_DB_STORE)) {
+        db.createObjectStore(CUSTOMER_RECORDS_DB_STORE);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('IndexedDB open failed'));
+  });
+}
+
+async function backupCustomerRecords(records) {
+  try {
+    const db = await openCustomerRecordsDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(CUSTOMER_RECORDS_DB_STORE, 'readwrite');
+      tx.objectStore(CUSTOMER_RECORDS_DB_STORE).put(records, 'all');
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  } catch (e) {
+    // localStorage remains the primary/fallback store if IndexedDB is unavailable.
+  }
+}
+
+async function restoreCustomerRecordsFromBackup() {
+  try {
+    const db = await openCustomerRecordsDB();
+    const records = await new Promise((resolve, reject) => {
+      const tx = db.transaction(CUSTOMER_RECORDS_DB_STORE, 'readonly');
+      const req = tx.objectStore(CUSTOMER_RECORDS_DB_STORE).get('all');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    db.close();
+
+    const current = getCustomerRecords();
+    if (Array.isArray(records) && records.length) {
+      // Restore the durable copy if localStorage was cleared/emptied.
+      if (!current.length || records.length > current.length) {
+        localStorage.setItem(CUSTOMER_RECORDS_KEY, JSON.stringify(records));
+      }
+    } else if (current.length) {
+      // First load after this fix: immediately create the durable backup from
+      // any records that already existed in localStorage.
+      backupCustomerRecords(current);
+    }
+  } catch (e) {
+    // Nothing to restore; localStorage will continue to work normally.
+  }
+  renderCustomerRecords();
+  updateCustomerPdfLatestCustomer();
+}
+
+function setCustomerRecords(records) {
+  const safeRecords = Array.isArray(records) ? records : [];
+  // Write localStorage immediately, then serialize IndexedDB writes so an
+  // older asynchronous backup can never overwrite a newer deletion/save.
+  localStorage.setItem(CUSTOMER_RECORDS_KEY, JSON.stringify(safeRecords));
+  customerRecordsWriteQueue = customerRecordsWriteQueue
+    .then(() => backupCustomerRecords(safeRecords))
+    .catch(() => {});
+  requestCustomerRecordsPersistence();
+}
+
+function renderCustomerRecords() {
+  const list = document.getElementById('customerRecordsList');
+  if (!list) return;
+
+  const records = getCustomerRecords();
+  if (!records.length) {
+    list.innerHTML = '<div class="customer-empty">Abhi koi customer record save nahi hai.</div>';
+    return;
+  }
+
+  updateCustomerPdfLatestCustomer();
+  list.innerHTML = records.map((record, index) => `
+    <div class="customer-record">
+      <div class="customer-record-info">
+        <div>👤 <strong>Customer Name :-</strong> ${escapeCustomerText(record.name)}</div>
+        <small>📱 <strong>Phone Number :-</strong> ${escapeCustomerText(record.mobile)}</small>
+        <small>💰 <strong>Amount Paid :-</strong> ₹${escapeCustomerText(record.amountPaid ?? record.amount ?? '')}</small>
+        <small>⏰ <strong>Time to Done button click :-</strong> ${escapeCustomerText(formatVerificationTime(record.paymentDoneAt || record.savedAt))}</small>
+      </div>
+      <div class="customer-record-actions">
+        <button class="customer-delete" onclick="deleteCustomerRecord(${index})">Delete</button>
+        <button class="customer-verify" onclick="verifyCustomerPayment(${index})">Verify Payment</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeCustomerText(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  }[ch]));
+}
+
+function openCustomerDetailsModal() {
+  const modal = document.getElementById('customerDetailsModal');
+  const nameInput = document.getElementById('customerNameInput');
+  const mobileInput = document.getElementById('customerMobileInput');
+  if (!modal || !nameInput || !mobileInput) return;
+
+  nameInput.value = '';
+  mobileInput.value = '';
+  modal.style.display = 'flex';
+  setTimeout(() => nameInput.focus(), 100);
+}
+
+function closeCustomerDetailsModal() {
+  const modal = document.getElementById('customerDetailsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function saveCustomerRecord() {
+  const nameInput = document.getElementById('customerNameInput');
+  const mobileInput = document.getElementById('customerMobileInput');
+  const name = (nameInput?.value || '').trim();
+  const mobile = (mobileInput?.value || '').replace(/\D/g, '');
+
+  if (!name) {
+    alert('Please Customer Name in Bank enter karein.');
+    nameInput?.focus();
+    return;
+  }
+  if (!/^\d{10}$/.test(mobile)) {
+    alert('Please 10 digit PhonePe Number / UPI mobile number enter karein.');
+    mobileInput?.focus();
+    return;
+  }
+
+  const records = getCustomerRecords();
+
+  // Amount = Done click ke waqt ka current Total Amount.
+  // Time = Done button click ka exact timestamp.
+  const amountPaid = pendingCustomerPaymentAmount || (
+    (document.getElementById('totalAmount')?.innerText || '₹ 0')
+      .replace(/[₹,\s]/g, '')
+      .trim()
+  );
+  const paymentDoneAt = pendingCustomerPaymentDoneAt || new Date().toISOString();
+
+  records.push({
+    name,
+    mobile,
+    amountPaid,
+    paymentDoneAt,
+    savedAt: new Date().toISOString()
+  });
+  setCustomerRecords(records);
+  closeCustomerDetailsModal();
+  renderCustomerRecords();
+
+  pendingCustomerPaymentAmount = '';
+  pendingCustomerPaymentDoneAt = null;
+
+  alert('Customer record saved successfully.\n\nAmount Paid: ₹' + amountPaid +
+        '\nTime to Done button click: ' + formatVerificationTime(paymentDoneAt));
+}
+
+function deleteCustomerRecord(index) {
+  const password = prompt('Customer record delete karne ke liye password enter karein:');
+  if (password === null) return;
+
+  if (password !== getCustomerDeletePassword()) {
+    alert('Wrong password. Customer record delete nahi hua.');
+    return;
+  }
+
+  const records = getCustomerRecords();
+  if (index >= 0 && index < records.length) {
+    records.splice(index, 1);
+    setCustomerRecords(records);
+    renderCustomerRecords();
+  }
+}
+
+function formatVerificationTime(value) {
+  const d = value ? new Date(value) : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const day = pad(d.getDate());
+  const month = pad(d.getMonth() + 1);
+  const year = d.getFullYear();
+  let hours = d.getHours();
+  const minutes = pad(d.getMinutes());
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  return hours + ':' + minutes + ' ' + ampm + ' / ' + day + '/' + month + '/' + year;
+}
+
+function verifyCustomerPayment(index) {
+  const records = getCustomerRecords();
+  const record = records[index];
+  if (!record) return;
+
+  const message =
+    'Payment Verification\n\n' +
+    'Name of Customer :- ' + record.name + '\n' +
+    'Phone Number :- ' + record.mobile + '\n' +
+    'Amount Paid :- ₹' + (record.amountPaid ?? record.amount ?? '') + '\n' +
+    'Time to Done button click :- ' + formatVerificationTime(record.paymentDoneAt || record.savedAt) + '\n\n' +
+    'Please verify this payment.';
+
+  const url = 'https://wa.me/' + STORE_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message);
+  window.open(url, '_blank');
+}
+
+function closePasswordModals() {
+  document.getElementById('forgotPasswordModal').style.display = 'none';
+  document.getElementById('newPasswordModal').style.display = 'none';
+}
+
+function openForgotPasswordModal() {
+  const modal = document.getElementById('forgotPasswordModal');
+  const input = document.getElementById('forgotPasswordInput');
+  input.value = '';
+  modal.style.display = 'flex';
+  setTimeout(() => input.focus(), 100);
+}
+
+function confirmForgotPassword() {
+  const entered = (document.getElementById('forgotPasswordInput').value || '').trim();
+
+  if (entered !== 'Mujeeb@2005') {
+    alert('Wrong password.');
+    return;
+  }
+
+  document.getElementById('forgotPasswordModal').style.display = 'none';
+  document.getElementById('newPasswordInput').value = '';
+  document.getElementById('confirmPasswordInput').value = '';
+  document.getElementById('newPasswordModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('newPasswordInput').focus(), 100);
+}
+
+function setNewCustomerPassword() {
+  const newPassword = document.getElementById('newPasswordInput').value;
+  const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+  if (!newPassword || newPassword.length < 4) {
+    alert('New password kam se kam 4 characters ka hona chahiye.');
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    alert('New password aur confirm password same nahi hain.');
+    return;
+  }
+
+  // Jo new password yahan set hoga, wahi aage se Customer Records ka DELETE password rahega.
+  localStorage.setItem(CUSTOMER_PASSWORD_KEY, newPassword);
+  document.getElementById('newPasswordModal').style.display = 'none';
+  alert('New password successfully set ho gaya. Ab Delete ke liye yahi password use hoga.');
+}
+
+// UPI Done: no congratulations animation; ask both details together.
+const customerOriginalUpiPaymentDone = window.upiPaymentDone;
+window.upiPaymentDone = function() {
+  // IMPORTANT: ye values Done button click ke exact waqt capture hoti hain.
+  pendingCustomerPaymentDoneAt = new Date().toISOString();
+
+  const totalText = document.getElementById('totalAmount')?.innerText || '₹ 0';
+  const totalNumber = totalText.replace(/[^0-9.]/g, '');
+  pendingCustomerPaymentAmount = totalNumber || '0';
+
+  if (typeof customerOriginalUpiPaymentDone === 'function') {
+    customerOriginalUpiPaymentDone();
+  }
+
+  setTimeout(openCustomerDetailsModal, 250);
+};
+
+
+const CUSTOMER_OWNER_WHATSAPP_KEY = 'sana_store_owner_whatsapp_v1';
+
+function loadCustomerOwnerWhatsapp() {
+  const input = document.getElementById('customerOwnerWhatsapp');
+  if (!input) return;
+  input.value = localStorage.getItem(CUSTOMER_OWNER_WHATSAPP_KEY) || '';
+}
+
+function saveCustomerOwnerWhatsapp() {
+  const input = document.getElementById('customerOwnerWhatsapp');
+  if (!input) return '';
+  const value = String(input.value || '').replace(/\D/g, '').slice(0, 10);
+  input.value = value;
+  if (value.length === 10) {
+    localStorage.setItem(CUSTOMER_OWNER_WHATSAPP_KEY, value);
+  }
+  return value;
+}
+
+function getLatestCustomerRecord() {
+  const records = getCustomerRecords();
+  return records.length ? records[records.length - 1] : null;
+}
+
+function loadCustomerOwnerWhatsapp() {
+  const input = document.getElementById('customerOwnerWhatsapp');
+  const saved = localStorage.getItem(CUSTOMER_OWNER_WHATSAPP_KEY) || '';
+  if (input) input.value = saved;
+  updateCustomerPdfLatestCustomer();
+}
+
+function setCustomerOwnerWhatsapp() {
+  const input = document.getElementById('customerOwnerWhatsapp');
+  const value = String(input?.value || '').replace(/\D/g, '').slice(0, 10);
+  if (!/^\d{10}$/.test(value)) { alert('Shop Owner ka 10 digit WhatsApp number enter karein.'); return; }
+  localStorage.setItem(CUSTOMER_OWNER_WHATSAPP_KEY, value);
+  if (input) input.value = value;
+  updateCustomerPdfLatestCustomer();
+  alert('Shop Owner WhatsApp number set ho gaya.');
+}
+
+function removeCustomerOwnerWhatsapp() {
+  localStorage.removeItem(CUSTOMER_OWNER_WHATSAPP_KEY);
+  const input = document.getElementById('customerOwnerWhatsapp');
+  if (input) input.value = '';
+  updateCustomerPdfLatestCustomer();
+  alert('Shop Owner WhatsApp number remove ho gaya.');
+}
+
+function updateCustomerPdfLatestCustomer() {
+  const info = document.getElementById('customerPdfLatestCustomer');
+  if (!info) return;
+  const record = getLatestCustomerRecord();
+  if (!record) {
+    info.textContent = 'Latest saved customer: Abhi koi customer record nahi hai.';
+    return;
+  }
+  info.innerHTML = 'Latest saved customer: <strong>' + escapeCustomerText(record.name) + '</strong> | WhatsApp: <strong>' + escapeCustomerText(record.mobile) + '</strong>';
+}
+
+function updateCustomerPdfSelectedInfo() {
+  const fileInput = document.getElementById('customerPdfFile');
+  const info = document.getElementById('customerPdfSelectedInfo');
+  if (!fileInput || !info) return;
+  const record = getLatestCustomerRecord();
+  const file = fileInput.files && fileInput.files[0];
+  if (!record) { info.textContent = 'Customer Records mein koi saved customer nahi hai.'; return; }
+  info.textContent = 'Customer: ' + record.name + ' | WhatsApp: ' + record.mobile + (file ? ' | PDF: ' + file.name : ' | PDF select karein.');
+}
+
+async function sendCustomerPdf() {
+  const ownerNumber = localStorage.getItem(CUSTOMER_OWNER_WHATSAPP_KEY) || '';
+  const customerInput = document.getElementById('customerCustomerWhatsapp');
+  const customerNumber = String(customerInput?.value || '').replace(/\D/g, '').slice(0, 10);
+  const fileInput = document.getElementById('customerPdfFile');
+  const file = window.generatedCustomerBillPdf || fileInput?.files?.[0];
+  const latestRecord = getLatestCustomerRecord();
+
+  if (!/^\d{10}$/.test(ownerNumber)) { alert('Step 1: Pehle Shop Owner ka 10 digit WhatsApp number Set karein.'); return; }
+  if (!/^\d{10}$/.test(customerNumber)) { alert('Step 2: Customer ka 10 digit WhatsApp mobile number enter karein.'); return; }
+  if (!file) { alert('Step 3: Pehle customer ki PDF upload/select karein.'); return; }
+  if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) { alert('Sirf PDF file select karein.'); return; }
+
+  const fullPhone = '91' + customerNumber;
+  const customerName = latestRecord && String(latestRecord.mobile).replace(/\D/g, '') === customerNumber ? latestRecord.name : 'Customer';
+  const message = 'Dear ' + customerName + ',\n\nPlease find your bill PDF attached.\n\nThank you for visiting Sana Store Nalatwad.';
+
+  // WhatsApp opens the exact customer chat. The browser cannot silently attach
+  // a local PDF to a wa.me link, so supported devices also get the PDF share sheet.
+  window.open('https://wa.me/' + fullPhone + '?text=' + encodeURIComponent(message), '_blank');
+
+  if (navigator.share && navigator.canShare) {
+    try {
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: message });
+        return;
+      }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+
+  alert('Customer ka WhatsApp chat open ho gaya. PDF attach karke Send karein.');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderCustomerRecords();
+  updateCustomerPdfLatestCustomer();
+  // Restore the durable backup after every page load/close-reopen cycle.
+  requestCustomerRecordsPersistence();
+  restoreCustomerRecordsFromBackup();
+  loadCustomerOwnerWhatsapp();
+
+  const pdfFile = document.getElementById('customerPdfFile');
+  if (pdfFile) pdfFile.addEventListener('change', function() {
+    window.generatedCustomerBillPdf = null;
+    updateCustomerPdfSelectedInfo();
+  });
+});
+
+
+
+
+
+</script>
+
+
+
+</div>
+
+
+<div class="customer-records-section" id="customerRecordsSection">
+  <h3>👤 Saved Customer Records</h3>
+  <div id="customerRecordsList" class="customer-records-list"></div>
+  <div class="customer-forgot-wrap">
+    <button class="customer-forgot" onclick="openForgotPasswordModal()">Forgot Password</button>
+  </div>
+</div>
+
+<!-- Customer PDF Upload / WhatsApp -->
+<div class="customer-pdf-section" id="customerPdfSection">
+  <h3>📄 Upload Customer PDF & WhatsApp</h3>
+
+  <div class="customer-pdf-step">
+    <div class="customer-pdf-step-title">STEP 1 — 🏪 Shop Owner WhatsApp Number</div>
+    <div class="customer-pdf-note">Is number ka WhatsApp account PDF/message bhejne ke liye sender rahega.</div>
+    <input id="customerOwnerWhatsapp" class="customer-owner-number" type="tel" inputmode="numeric" maxlength="10" placeholder="Shop Owner Mobile Number (10 digit)">
+    <div class="customer-pdf-owner-buttons">
+      <button type="button" class="customer-owner-set" onclick="setCustomerOwnerWhatsapp()">Set Number</button>
+      <button type="button" class="customer-owner-remove" onclick="removeCustomerOwnerWhatsapp()">Remove</button>
+    </div>
+  </div>
+
+  <div class="customer-pdf-step">
+    <div class="customer-pdf-step-title">STEP 2 — 👤 Customer WhatsApp Number</div>
+    <div class="customer-pdf-note">Cash customer ke liye yahan customer ka mobile number manually enter karein. Isi number ki WhatsApp chat khulegi.</div>
+    <input id="customerCustomerWhatsapp" class="customer-customer-number" type="tel" inputmode="numeric" maxlength="10" placeholder="Customer Mobile Number (10 digit)">
+  </div>
+
+  <div class="customer-pdf-step">
+    <div class="customer-pdf-step-title">STEP 3 — 📄 Customer PDF Upload</div>
+    <div class="customer-pdf-note">Customer ka bill PDF yahan select/upload karein.</div>
+    <input id="customerPdfFile" class="customer-pdf-file" type="file" accept="application/pdf">
+    <div id="customerPdfSelectedInfo" class="customer-pdf-selected">PDF select nahi ki gayi.</div>
+  </div>
+
+  <button type="button" class="customer-pdf-send" onclick="sendCustomerPdf()">📲 Upload PDF & Open Customer WhatsApp</button>
+  <div class="customer-pdf-note customer-pdf-final-note">Button dabane par customer ki WhatsApp chat khulegi aur message ready rahega. Supported mobile browsers PDF ko share sheet mein bhi denge, jahan WhatsApp select karke PDF attach/send ki ja sakti hai.</div>
+</div>
+
+
+
+<div class="customer-modal" id="customerDetailsModal">
+  <div class="customer-modal-card">
+    <h2>👤 Customer Name in Bank</h2>
+    <p>Customer Name in Bank aur PhonePe Number / UPI details enter karein.</p>
+
+    <input id="customerNameInput" type="text" maxlength="80" placeholder="Customer Name in Bank">
+
+    <input id="customerMobileInput" type="tel" inputmode="numeric" maxlength="10"
+           placeholder="PhonePe Number / UPI">
+
+    <div class="customer-modal-actions">
+      <button class="customer-next" onclick="saveCustomerRecord()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="customer-modal" id="forgotPasswordModal">
+  <div class="customer-modal-card">
+    <h2>🔐 Forgot Password</h2>
+    <p class="password-modal-note">Confirm password enter karein.</p>
+    <input id="forgotPasswordInput" type="password" maxlength="64" placeholder="Enter Password">
+    <div class="customer-modal-actions">
+      <button class="customer-next" onclick="confirmForgotPassword()">Yes / Confirm</button>
+      <button class="customer-skip" onclick="closePasswordModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="customer-modal" id="newPasswordModal">
+  <div class="customer-modal-card">
+    <h2>🔑 Set a New Password</h2>
+    <p class="password-modal-note">Naya password enter karein.</p>
+    <input id="newPasswordInput" type="password" maxlength="64" placeholder="New Password">
+    <input id="confirmPasswordInput" type="password" maxlength="64" placeholder="Confirm New Password">
+    <div class="customer-modal-actions">
+      <button class="customer-next" onclick="setNewCustomerPassword()">Set New Password</button>
+      <button class="customer-skip" onclick="closePasswordModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
