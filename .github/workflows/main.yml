@@ -1,0 +1,55 @@
+name: Build Web2APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_path:
+        description: Website ZIP file path
+        required: true
+        default: website.zip
+      icon_path:
+        description: App icon path
+        required: true
+        default: icon.webp
+      app_name:
+        description: Android App Name
+        required: true
+        default: MyApp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Requirements
+        run: pip install colorama
+
+      - name: Build APK
+        run: |
+          python wa.py \
+            -zip "${{ inputs.zip_path }}" \
+            -icon "${{ inputs.icon_path }}" \
+            -name "${{ inputs.app_name }}"
+
+      - name: Download APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: My-Android-APK
+          path: dist/*.apk
