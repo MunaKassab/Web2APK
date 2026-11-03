@@ -3,10 +3,6 @@ name: Build Web2APK
 on:
   workflow_dispatch:
     inputs:
-      zip_path:
-        description: Website ZIP file path
-        required: true
-        default: website.zip
       icon_path:
         description: App icon path
         required: true
@@ -14,7 +10,7 @@ on:
       app_name:
         description: Android App Name
         required: true
-        default: MyApp
+        default: SANA STORE BILLING
 
 jobs:
   build:
@@ -43,15 +39,19 @@ jobs:
       - name: Install Requirements
         run: pip install colorama
 
+      - name: Create Website ZIP
+        run: |
+          zip -j website.zip index.html
+
       - name: Build APK
         run: |
           python wa.py \
-            -zip "${{ inputs.zip_path }}" \
+            -zip "website.zip" \
             -icon "${{ inputs.icon_path }}" \
             -name "${{ inputs.app_name }}"
 
       - name: Download APK
         uses: actions/upload-artifact@v4
         with:
-          name: My-Android-APK
+          name: SANA-STORE-ANDROID-APK
           path: dist/*.apk
